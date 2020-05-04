@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace test\unit\Marketplace;
 
 use PHPUnit\Framework\TestCase;
-use rollun\walmart\Marketplace\Authentication;
 use rollun\walmart\Marketplace\Item;
 
 /**
@@ -19,21 +18,23 @@ class ItemTest extends TestCase
      */
     public function getItemsProvider()
     {
-        // $nextCursor, $sku, $limit, $offset, $expectedCount
+        // $sku, $limit, $offset, $nextCursor, $expectedCount
         return [
-            [null, null, 20, 0, 20],
-            [null, null, 3, 2, 3],
-            [null, null, 1, 325, 1],
+            ['', 3, 2, '*', 3],
+            ['', 1, 325, '*', 1],
+            ['1235520056', 20, 0, '*', 1],
         ];
     }
 
     /**
+     * Test for getItems method
+     *
      * @dataProvider getItemsProvider
      */
-    public function testGetItems($nextCursor, $sku, $limit, $offset, $expectedCount)
+    public function testGetItems($sku, $limit, $offset, $nextCursor, $expectedCount)
     {
-        $count = count((new Item())->getItems($nextCursor, $sku, $limit, $offset)['ItemResponse']);
+        $items = (new Item())->getItems($sku, $limit, $offset, $nextCursor);
 
-        $this->assertEquals($expectedCount, $count);
+        $this->assertEquals($expectedCount, count($items['ItemResponse']));
     }
 }

@@ -11,23 +11,17 @@ namespace rollun\walmart\Marketplace;
 class Item extends Base
 {
     /**
-     * @param string|null $nextCursor
-     * @param string|null $sku
-     * @param int|null    $limit
-     * @param int|null    $offset
+     * @param string $sku
+     * @param int    $limit
+     * @param int    $offset
+     * @param string $nextCursor
      *
      * @return array
      */
-    public function getItems(string $nextCursor = null, string $sku = null, int $limit = 20, int $offset = 0): array
+    public function getItems(string $sku = '', int $limit = 20, int $offset = 0, string $nextCursor = '*'): array
     {
         // prepare url
-        $url = $this->baseUrl . "items?offset=$offset&limit=$limit";
-        if (!empty($nextCursor)) {
-            $url .= "&nextCursor=$nextCursor";
-        }
-        if (!empty($sku)) {
-            $url .= "&nextCursor=$sku";
-        }
+        $url = $this->baseUrl . "items?offset=$offset&limit=$limit&nextCursor=$nextCursor&sku=$sku";
 
         $ch = curl_init();
         $options = [
