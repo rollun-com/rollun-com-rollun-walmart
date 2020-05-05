@@ -5,7 +5,6 @@ namespace test\unit\Marketplace;
 
 use PHPUnit\Framework\TestCase;
 use rollun\walmart\Marketplace\Item;
-use rollun\walmart\Marketplace\Price;
 
 /**
  * Class ItemTest
@@ -21,8 +20,8 @@ class ItemTest extends TestCase
     {
         // $sku, $limit, $offset, $nextCursor, $expectedCount
         return [
-//            ['', 3, 2, '*', 3],
-//            ['', 1, 325, '*', 1],
+            ['', 3, 2, '*', 3],
+            ['', 1, 325, '*', 1],
             ['1235520056', 20, 0, '*', 1],
         ];
     }
@@ -35,6 +34,14 @@ class ItemTest extends TestCase
     public function testGetItems($sku, $limit, $offset, $nextCursor, $expectedCount)
     {
         $items = (new Item())->getItems($sku, $limit, $offset, $nextCursor);
+
+        $inventory = [
+            'sku'      => '1235520056',
+            'quantity' => [
+                'unit'   => 'EACH',
+                'amount' => 3
+            ]
+        ];
 
         $this->assertEquals($expectedCount, count($items['ItemResponse']));
     }
