@@ -11,6 +11,8 @@ namespace rollun\walmart\Marketplace;
 class Item extends Base
 {
     /**
+     * https://developer.walmart.com/#/apicenter/marketPlace/latest#getAllItems
+     *
      * @param string $sku
      * @param int    $limit
      * @param int    $offset

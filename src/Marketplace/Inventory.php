@@ -11,6 +11,8 @@ namespace rollun\walmart\Marketplace;
 class Inventory extends Base
 {
     /**
+     * https://developer.walmart.com/#/apicenter/marketPlace/latest#inventoryManagement
+     *
      * @param string $sku
      * @param string $shipNode
      *
@@ -23,6 +25,8 @@ class Inventory extends Base
     }
 
     /**
+     * https://developer.walmart.com/#/apicenter/marketPlace/latest#updateInventoryForAnItem
+     *
      * @param array $inventory
      *
      * @return array

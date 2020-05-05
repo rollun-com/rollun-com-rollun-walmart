@@ -11,6 +11,8 @@ namespace rollun\walmart\Marketplace;
 class Price extends Base
 {
     /**
+     * https://developer.walmart.com/#/apicenter/marketPlace/latest#priceManagement
+     *
      * @param string $sku
      * @param float  $amount
      * @param string $currency
