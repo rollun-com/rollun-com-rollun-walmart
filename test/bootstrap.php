@@ -9,6 +9,10 @@ Deprecated::$enabled = false;
 // Change to the project root, to simplify resolving paths
 chdir(dirname(__DIR__));
 
+// start session
+session_start();
+
+// load container
 $container = require 'config/container.php';
 
 if (getenv("APP_ENV") === 'prod') {
