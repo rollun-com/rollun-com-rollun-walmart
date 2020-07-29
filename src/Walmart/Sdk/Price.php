@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace rollun\walmart\Marketplace;
+namespace rollun\Walmart\Sdk;
 
 /**
  * Class Price

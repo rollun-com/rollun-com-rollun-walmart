@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace test\unit\Marketplace;
+namespace test\unit\Walmart\Sdk;
 
 use PHPUnit\Framework\TestCase;
-use rollun\walmart\Marketplace\Inventory;
+use rollun\Walmart\Sdk\Inventory;
 
 /**
  * Class InventoryTest

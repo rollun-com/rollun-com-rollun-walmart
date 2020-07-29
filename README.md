@@ -7,7 +7,7 @@
 ```php
 <?php
 
-use rollun\walmart\Marketplace\Item;
+use rollun\walmart\Walmart\Item;
 
 $item = new Item();
 
@@ -54,7 +54,7 @@ $items = $item->getItems('', $limit, $offset); // array
 ```php
 <?php
 
-use rollun\walmart\Marketplace\Inventory;
+use rollun\walmart\Walmart\Inventory;
 
 $inventory = new Inventory();
 
@@ -77,7 +77,7 @@ $data = $inventory->getInventory($sku);
 ```php
 <?php
 
-use rollun\walmart\Marketplace\Inventory;
+use rollun\walmart\Walmart\Inventory;
 
 $inventory = [
     'sku'      => '1235520056',
@@ -94,7 +94,7 @@ $inventory = (new Inventory())->updateInventory($inventory);
 ```php
 <?php
 
-use rollun\walmart\Marketplace\Price;
+use rollun\walmart\Walmart\Price;
 
 $sku = '1235520056';
 $amount = 55.21;

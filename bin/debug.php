@@ -13,9 +13,9 @@ $container = require 'config/container.php';
 $lifeCycleToken = LifeCycleToken::generateToken();
 $container->setService(LifeCycleToken::class, $lifeCycleToken);
 
-$item = new \rollun\walmart\Marketplace\Item();
+$adapter = new \rollun\Walmart\Adapter\Adapter();
 
-$allItems = $item->getItems();
+$allItems = $adapter->getAllItems();
 
 echo '<pre>';
 print_r($allItems);

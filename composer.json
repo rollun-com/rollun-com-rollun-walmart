@@ -9,6 +9,7 @@
   "require": {
     "php": "^7.2",
     "ext-curl": "*",
+    "ext-zip": "*",
     "ext-json": "*",
     "zendframework/zend-servicemanager": "^3.3"
   },
@@ -21,7 +22,7 @@
   },
   "autoload": {
     "psr-4": {
-      "rollun\\walmart\\": "src/"
+      "rollun\\": "src/"
     }
   },
   "autoload-dev": {
