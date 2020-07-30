@@ -17,7 +17,8 @@ $result = $walmart->getAllItems();
 $result = $walmart->getActiveItems();
 
 // get feed status
-$result = $walmart->getFeedStatus('45F8FEA18E6E48209A570F3E03BEC254@AVMBCgA');
+$feedId = '45F8FEA18E6E48209A570F3E03BEC254@AVMBCgA';
+$result = $walmart->getFeedStatus($feedId);
 
 // update quantity
 $data = [
