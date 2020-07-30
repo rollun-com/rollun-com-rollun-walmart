@@ -18,31 +18,26 @@ class ItemTest extends TestCase
      */
     public function getItemsProvider()
     {
-        // $sku, $limit, $offset, $nextCursor, $expectedCount
+        // $limit, $expected
         return [
-            ['', 3, 2, '*', 3],
-            ['', 1, 325, '*', 1],
-            ['1235520056', 20, 0, '*', 1],
+            [3, 3],
+            [1, 1],
         ];
     }
 
     /**
      * Test for getItems method
      *
+     * @param int $limit
+     * @param int $expected
+     *
      * @dataProvider getItemsProvider
      */
-    public function testGetItems($sku, $limit, $offset, $nextCursor, $expectedCount)
+
+    public function testGetItems(int $limit, int $expected)
     {
-        $items = (new Item())->getItems($sku, $limit, $offset, $nextCursor);
+        $items = (new Item())->getItems($limit);
 
-        $inventory = [
-            'sku'      => '1235520056',
-            'quantity' => [
-                'unit'   => 'EACH',
-                'amount' => 3
-            ]
-        ];
-
-        $this->assertEquals($expectedCount, count($items['ItemResponse']));
+        $this->assertEquals($expected, count($items['ItemResponse']));
     }
 }

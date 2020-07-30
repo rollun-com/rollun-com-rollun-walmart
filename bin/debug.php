@@ -13,13 +13,10 @@ $container = require 'config/container.php';
 $lifeCycleToken = LifeCycleToken::generateToken();
 $container->setService(LifeCycleToken::class, $lifeCycleToken);
 
-$adapter = new \rollun\Walmart\Adapter\Adapter();
-
-$allItems = $adapter->getAllItems();
+//$result = (new \rollun\Walmart\Walmart())->getAllItems();
+//$result = (new \rollun\Walmart\Walmart())->updatePrice(['1060040043' => 92.35]);
+//$result = (new \rollun\Walmart\Walmart())->getFeedStatus('45F8FEA18E6E48209A570F3E03BEC254@AVMBCgA');
 
 echo '<pre>';
-print_r($allItems);
-die();
-
-echo 'Done !';
+print_r($result);
 die();

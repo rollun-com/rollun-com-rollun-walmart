@@ -10,26 +10,30 @@ namespace rollun\Walmart\Sdk;
  */
 class Item extends Base
 {
+    const LIFECYCLE_STATUS_ACTIVE = 'ACTIVE';
+    const LIFECYCLE_STATUS_ARCHIVED = 'ARCHIVED';
+    const LIFECYCLE_STATUS_RETIRED = 'RETIRED';
+
     /**
      * https://developer.walmart.com/#/apicenter/marketPlace/latest#getAllItems
      *
-     * @param string $sku
-     * @param int    $limit
-     * @param int    $offset
-     * @param string $nextCursor
+     * @param int       $limit
+     * @param string    $nextCursor
+     * @param string    $lifecycleStatus
+     * @param bool|null $isPublished
      *
      * @return array
+     * @throws \Exception
      */
-    public function getItems(string $sku = '', int $limit = 20, string $nextCursor = '', int $offset = 0): array
+    public function getItems(int $limit = 20, string $nextCursor = '', string $lifecycleStatus = self::LIFECYCLE_STATUS_ACTIVE, ?bool $isPublished = null): array
     {
-        $path = "items?limit=$limit";
-        if (!empty($sku)) {
-            $path .= "&sku=$sku";
-        }
+        $path = "items?limit=$limit&lifecycleStatus=$lifecycleStatus";
         if (!empty($nextCursor)) {
             $path .= "&nextCursor=$nextCursor";
-        } else {
-            $path .= "&offset=$offset";
+        }
+        if ($isPublished !== null) {
+            $publishedStatus = empty($isPublished) ? 'UNPUBLISHED' : 'PUBLISHED';
+            $path .= "&publishedStatus=$publishedStatus";
         }
 
         return $this->request($path);

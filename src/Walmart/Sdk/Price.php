@@ -13,29 +13,26 @@ class Price extends Base
     /**
      * https://developer.walmart.com/#/apicenter/marketPlace/latest#priceManagement
      *
-     * @param string $sku
-     * @param float  $amount
-     * @param string $currency
+     * @param array $data
      *
      * @return array
      * @throws \Exception
      */
-    public function updateRegularPrice(string $sku, float $amount, string $currency = 'USD'): array
+    public function updateRegularPrice(array $data): array
     {
-        // prepare request data
-        $data = [
-            'sku'     => $sku,
-            'pricing' => [
-                [
-                    'currentPriceType' => 'BASE',
-                    'currentPrice'     => [
-                        'currency' => $currency,
-                        'amount'   => $amount
-                    ]
-                ]
-            ]
-        ];
-
         return $this->request('price', 'PUT', $data);
+    }
+
+    /**
+     * https://developer.walmart.com/#/apicenter/marketPlace/latest#updateBulkPrices
+     *
+     * @param array $data
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function bulkUpdatePrice(array $data): array
+    {
+        return $this->request('feeds?feedType=price', 'POST', $data);
     }
 }

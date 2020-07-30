@@ -36,4 +36,17 @@ class Inventory extends Base
     {
         return $this->request("inventory?sku={$inventory['sku']}", 'PUT', $inventory);
     }
+
+    /**
+     * https://developer.walmart.com/#/apicenter/marketPlace/latest#bulkUpdateInventory
+     *
+     * @param array $inventory
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function bulkUpdateInventory(array $data): array
+    {
+        return $this->request("feeds?feedType=inventory", 'POST', $data);
+    }
 }
