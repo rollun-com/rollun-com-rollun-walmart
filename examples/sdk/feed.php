@@ -1,19 +1,16 @@
 <?php
-
-use rollun\logger\LifeCycleToken;
-
 error_reporting(E_ALL ^ E_USER_DEPRECATED ^ E_DEPRECATED);
 
-chdir(dirname(__DIR__));
+chdir(dirname(dirname(__DIR__)));
 require 'vendor/autoload.php';
 
 /** @var \Interop\Container\ContainerInterface $container */
 $container = require 'config/container.php';
 
-$lifeCycleToken = LifeCycleToken::generateToken();
-$container->setService(LifeCycleToken::class, $lifeCycleToken);
+$feedId = '45F8FEA18E6E48209A570F3E03BEC254@AVMBCgA';
 
-$result = (new \rollun\Walmart\Walmart())->getAllItems();
+$client = new \rollun\Walmart\Sdk\Feed();
+$result = $client->getFeedStatus($feedId, true, 20, 0);
 
 echo '<pre>';
 print_r($result);
