@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace rollun\Walmart\Sdk;
 
+use Psr\Log\LoggerInterface;
+use rollun\dic\InsideConstruct;
 use Zend\ServiceManager\Exception\InvalidArgumentException;
 
 /**
@@ -33,9 +35,14 @@ class Base
     protected $authHash;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Base constructor.
      */
-    public function __construct()
+    public function __construct(LoggerInterface $logger = null)
     {
         $this->correlationId = uniqid();
 
@@ -53,6 +60,24 @@ class Base
         }
 
         $this->authHash = base64_encode("$clientId:$clientSecret");
+
+        InsideConstruct::init(['logger' => LoggerInterface::class]);
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep()
+    {
+        return ['correlationId', 'baseUrl', 'authHash'];
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function __wakeup()
+    {
+        InsideConstruct::initWakeup(['logger' => LoggerInterface::class]);
     }
 
     /**

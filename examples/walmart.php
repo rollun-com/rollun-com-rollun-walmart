@@ -8,7 +8,7 @@ require 'vendor/autoload.php';
 /** @var \Interop\Container\ContainerInterface $container */
 $container = require 'config/container.php';
 
-$walmart = new \rollun\Walmart\Walmart();
+$walmart = $container->get(\rollun\Walmart\Walmart::class);
 
 // get all items with them reports
 $result = $walmart->getAllItems();
