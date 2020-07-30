@@ -25,11 +25,11 @@ $data = [
     // sku => quantity
     '1060040043' => 0,
 ];
-$result = $walmart->updateQuantity($data);
+$feedId = $walmart->updateQuantity($data);
 
 // update price
 $data = [
     // sku => price
     '1060040043' => 0,
 ];
-$result = $walmart->updatePrice($data);
+$feedId = $walmart->updatePrice($data);
