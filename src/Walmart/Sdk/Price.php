@@ -16,7 +16,6 @@ class Price extends Base
      * @param array $data
      *
      * @return array
-     * @throws \Exception
      */
     public function updateRegularPrice(array $data): array
     {
@@ -29,7 +28,6 @@ class Price extends Base
      * @param array $data
      *
      * @return array
-     * @throws \Exception
      */
     public function bulkUpdatePrice(array $data): array
     {

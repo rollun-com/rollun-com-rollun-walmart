@@ -19,7 +19,6 @@ class Feed extends Base
      * @param int    $offset
      *
      * @return array
-     * @throws \Exception
      */
     public function getFeedStatus(string $feedId, bool $includeDetails = true, int $limit = 20, int $offset = 0): array
     {

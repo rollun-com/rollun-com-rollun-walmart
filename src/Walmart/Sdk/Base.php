@@ -92,6 +92,7 @@ class Base
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT        => 60,
                 CURLOPT_HEADER         => false,
+                CURLOPT_FAILONERROR    => true,
                 CURLOPT_POST           => 1,
                 CURLOPT_POSTFIELDS     => "grant_type=client_credentials",
                 CURLOPT_HTTPHEADER     => [
@@ -104,15 +105,25 @@ class Base
                 ]
             ];
             curl_setopt_array($ch, $options);
-            $response = json_decode(curl_exec($ch));
 
-            if (!isset($response->access_token)) {
-                throw new \Exception("Walmart Auth failed");
+            $response = curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                $this->logger->error(curl_error($ch));
+            }
+
+            curl_close($ch);
+
+            $responseData = json_decode($response);
+
+            if (!isset($responseData->access_token)) {
+                $this->logger->error("Walmart Auth failed");
+                return 'no-access-token';
             }
 
             $_SESSION['walmartAuth'] = [
-                'access_token' => $response->access_token,
-                'lifetime'     => time() + $response->expires_in
+                'access_token' => $responseData->access_token,
+                'lifetime'     => time() + $responseData->expires_in
             ];
         }
 
@@ -125,7 +136,6 @@ class Base
      * @param array  $data
      *
      * @return array
-     * @throws \Exception
      */
     protected function request(string $path, string $method = 'GET', array $data = []): array
     {
@@ -152,8 +162,14 @@ class Base
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
 
         $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            $this->logger->error(curl_error($ch));
+        }
+
         curl_close($ch);
 
         return json_decode($response, true);
