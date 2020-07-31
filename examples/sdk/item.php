@@ -6,8 +6,9 @@ require 'vendor/autoload.php';
 
 /** @var \Interop\Container\ContainerInterface $container */
 $container = require 'config/container.php';
+$container->setService(rollun\logger\LifeCycleToken::class, \rollun\logger\LifeCycleToken::generateToken());
 
-$client = new \rollun\Walmart\Sdk\Item();
+$client = $container->get(\rollun\Walmart\Sdk\Item::class);
 
 $limit = 5;
 $nextCursor = 'AoE/GjBUTFNXRVNVODM0VzBTRUxMRVJfT0ZGRVJBNUE1RDJEOTczNDI0M0ZFOTZDOEUzM0JCREZGRDRDRQ=='; // for pagination

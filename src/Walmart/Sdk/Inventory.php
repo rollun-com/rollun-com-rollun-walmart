@@ -17,7 +17,6 @@ class Inventory extends Base
      * @param string $shipNode
      *
      * @return array
-     * @throws \Exception
      */
     public function getInventory(string $sku = '', string $shipNode = ''): array
     {
@@ -30,7 +29,6 @@ class Inventory extends Base
      * @param array $inventory
      *
      * @return array
-     * @throws \Exception
      */
     public function updateInventory(array $inventory): array
     {
@@ -43,7 +41,6 @@ class Inventory extends Base
      * @param array $inventory
      *
      * @return array
-     * @throws \Exception
      */
     public function bulkUpdateInventory(array $data): array
     {

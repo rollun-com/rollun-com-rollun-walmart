@@ -23,7 +23,6 @@ class Item extends Base
      * @param bool|null $isPublished
      *
      * @return array
-     * @throws \Exception
      */
     public function getItems(int $limit = 20, string $nextCursor = '', string $lifecycleStatus = self::LIFECYCLE_STATUS_ACTIVE, ?bool $isPublished = null): array
     {

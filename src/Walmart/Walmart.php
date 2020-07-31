@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace rollun\Walmart;
 
+use rollun\dic\InsideConstruct;
 use rollun\Walmart\Sdk;
 
 /**
@@ -13,13 +14,78 @@ use rollun\Walmart\Sdk;
 class Walmart
 {
     /**
+     * @var Sdk\Feed
+     */
+    protected $feed;
+
+    /**
+     * @var Sdk\Item
+     */
+    protected $item;
+
+    /**
+     * @var Sdk\Inventory
+     */
+    protected $inventory;
+
+    /**
+     * @var Sdk\Price
+     */
+    protected $price;
+
+    /**
+     * @var Sdk\Reports
+     */
+    protected $reports;
+
+    /**
+     * Walmart constructor.
+     *
+     * @param Sdk\Feed|null      $feed
+     * @param Sdk\Item|null      $item
+     * @param Sdk\Inventory|null $inventory
+     * @param Sdk\Price|null     $price
+     * @param Sdk\Reports|null   $reports
+     *
+     * @throws \ReflectionException
+     */
+    public function __construct(Sdk\Feed $feed = null, Sdk\Item $item = null, Sdk\Inventory $inventory = null, Sdk\Price $price = null, Sdk\Reports $reports = null)
+    {
+        InsideConstruct::init(
+            [
+                'feed'      => Sdk\Feed::class,
+                'item'      => Sdk\Item::class,
+                'inventory' => Sdk\Inventory::class,
+                'price'     => Sdk\Price::class,
+                'reports'   => Sdk\Reports::class,
+            ]
+        );
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function __wakeup()
+    {
+        InsideConstruct::initWakeup(
+            [
+                'feed'      => Sdk\Feed::class,
+                'item'      => Sdk\Item::class,
+                'inventory' => Sdk\Inventory::class,
+                'price'     => Sdk\Price::class,
+                'reports'   => Sdk\Reports::class,
+            ]
+        );
+    }
+
+    /**
      * @param string $feedId
      *
      * @return array
      */
     public function getFeedStatus(string $feedId): array
     {
-        return (new Sdk\Feed())->getFeedStatus($feedId, true, 1000, 0);
+        return $this->feed->getFeedStatus($feedId, true, 1000, 0);
     }
 
     /**
@@ -32,10 +98,9 @@ class Walmart
         $result = [];
 
         // get items
-        $client = new Sdk\Item();
         $data['nextCursor'] = '';
         while (isset($data['nextCursor'])) {
-            $data = $client->getItems(1000, $data['nextCursor'], Sdk\Item::LIFECYCLE_STATUS_ACTIVE, true);
+            $data = $this->item->getItems(1000, $data['nextCursor'], Sdk\Item::LIFECYCLE_STATUS_ACTIVE, true);
             $result = array_merge($result, $data['ItemResponse']);
         }
 
@@ -52,10 +117,9 @@ class Walmart
         $result = [];
 
         // get items
-        $client = new Sdk\Item();
         $data['nextCursor'] = '';
         while (isset($data['nextCursor'])) {
-            $data = $client->getItems(1000, $data['nextCursor']);
+            $data = $this->item->getItems(1000, $data['nextCursor']);
             $result = array_merge($result, $data['ItemResponse']);
         }
 
@@ -86,7 +150,7 @@ class Walmart
             ];
         }
 
-        $response = (new Sdk\Inventory())->bulkUpdateInventory($requestData);
+        $response = $this->inventory->bulkUpdateInventory($requestData);
         if (empty($response['feedId'])) {
             throw new \Exception('No feedId in the response of bulkUpdateInventory');
         }
@@ -123,7 +187,7 @@ class Walmart
             ];
         }
 
-        $response = (new Sdk\Price())->bulkUpdatePrice($requestData);
+        $response = $this->price->bulkUpdatePrice($requestData);
         if (empty($response['feedId'])) {
             throw new \Exception('No feedId in the response of bulkUpdatePrice');
         }
@@ -140,7 +204,7 @@ class Walmart
     protected function setDataFromReport(array $result): array
     {
         if (!empty($result)) {
-            $report = (new Sdk\Reports())->getItemReport();
+            $report = $this->reports->getItemReport();
             if (!empty($report)) {
                 // set count from report
                 foreach ($result as $k => $row) {

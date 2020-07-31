@@ -6,10 +6,11 @@ require 'vendor/autoload.php';
 
 /** @var \Interop\Container\ContainerInterface $container */
 $container = require 'config/container.php';
+$container->setService(rollun\logger\LifeCycleToken::class, \rollun\logger\LifeCycleToken::generateToken());
 
 $sku = '1060040043';
 
-$client = new \rollun\Walmart\Sdk\Price();
+$client = $container->get(\rollun\Walmart\Sdk\Price::class);
 
 // update price
 $result = $client->updateRegularPrice(

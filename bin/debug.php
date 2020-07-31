@@ -13,7 +13,8 @@ $container = require 'config/container.php';
 $lifeCycleToken = LifeCycleToken::generateToken();
 $container->setService(LifeCycleToken::class, $lifeCycleToken);
 
-$result = (new \rollun\Walmart\Walmart())->getAllItems();
+$client = unserialize(serialize($container->get(\rollun\Walmart\Walmart::class)));
+$result = $client->getAllItems();
 
 echo '<pre>';
 print_r($result);

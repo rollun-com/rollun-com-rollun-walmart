@@ -20,7 +20,6 @@ class Reports extends Base
      * @param string $shipNode
      *
      * @return array
-     * @throws \Exception
      */
     public function getItemReport(): array
     {
@@ -53,8 +52,14 @@ class Reports extends Base
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
 
         $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            $this->logger->error(curl_error($ch));
+        }
+
         curl_close($ch);
 
         // create dir if not exists
