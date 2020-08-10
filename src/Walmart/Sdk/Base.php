@@ -162,7 +162,6 @@ class Base
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
 
         $response = curl_exec($ch);
 
@@ -172,6 +171,12 @@ class Base
 
         curl_close($ch);
 
-        return !empty($response) ? json_decode($response, true) : [];
+        $result = !empty($response) ? json_decode($response, true) : [];
+
+        if (isset($result['errors'])) {
+            $this->logger->error('Walmart API request failed', $result);
+        }
+
+        return $result;
     }
 }
