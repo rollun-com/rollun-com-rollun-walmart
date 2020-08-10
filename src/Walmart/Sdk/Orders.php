@@ -38,4 +38,17 @@ class Orders extends Base
     {
         return $this->request("orders/$purchaseOrderId");
     }
+
+    /**
+     * https://developer.walmart.com/#/apicenter/marketPlace/latest#shippingNotificationsUpdates
+     *
+     * @param string $purchaseOrderId
+     * @param array  $data
+     *
+     * @return array
+     */
+    public function shippingUpdate(string $purchaseOrderId, array $data)
+    {
+        return $this->request("orders/$purchaseOrderId/shipping", 'POST', $data);
+    }
 }

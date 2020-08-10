@@ -16,6 +16,39 @@ $result = $client->getAll();
 // get order by id
 $result = $client->getOrder('4801218385418');
 
-echo '<pre>';
-print_r($result);
-die();
+
+// **NOTE: shipDateTime must be in UTC. **
+// **NOTE: Walmart Fulfilled orders can't be shipped or updated. **
+$data = [
+    'orderShipment' => [
+        'processMode' => 'PARTIAL_UPDATE',
+        'orderLines'  => [
+            [
+                'lineNumber'        => 1,
+                'orderLineStatuses' => [
+                    'orderLineStatus' => [
+                        [
+                            'status'         => 'Shipped',
+                            'statusQuantity' => [
+                                'unitOfMeasurement' => 'EACH',
+                                'amount'            => 1
+                            ],
+                            'trackingInfo'   => [
+                                'shipDateTime'   => '1588276433000',
+                                'carrierName'    => [
+                                    'otherCarrier' => null,
+                                    'carrier'      => 'FedEx'
+                                ],
+                                'methodCode'     => 'Value',
+                                'trackingNumber' => '178528291246',
+                                'trackingURL'    => 'https://www.walmart.com/tracking?tracking_id=178528291246&order_id=4801218385418'
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
+];
+
+$result = $client->shippingUpdate('4801218385418', $data);
