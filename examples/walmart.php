@@ -39,4 +39,7 @@ $feedId = $walmart->updatePrice($data);
 $result = $walmart->getAllOrders();
 
 // get order
-$result = $walmart->getOrder('112233');
+$result = $walmart->getOrder('4801218385418');
+
+// update order track number
+$result = $walmart->updateOrderTrackNumber('4801218385418', 'FedEx', '178528291246');

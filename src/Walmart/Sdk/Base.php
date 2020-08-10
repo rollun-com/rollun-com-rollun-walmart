@@ -172,6 +172,6 @@ class Base
 
         curl_close($ch);
 
-        return json_decode($response, true);
+        return !empty($response) ? json_decode($response, true) : [];
     }
 }
