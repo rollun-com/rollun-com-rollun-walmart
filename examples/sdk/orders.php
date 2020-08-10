@@ -16,7 +16,6 @@ $result = $client->getAll();
 // get order by id
 $result = $client->getOrder('4801218385418');
 
-
 // **NOTE: shipDateTime must be in UTC. **
 // **NOTE: Walmart Fulfilled orders can't be shipped or updated. **
 $data = [
