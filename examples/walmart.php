@@ -7,6 +7,7 @@ require 'vendor/autoload.php';
 
 /** @var \Interop\Container\ContainerInterface $container */
 $container = require 'config/container.php';
+$container->setService(rollun\logger\LifeCycleToken::class, \rollun\logger\LifeCycleToken::generateToken());
 
 $walmart = $container->get(\rollun\Walmart\Walmart::class);
 
@@ -33,3 +34,9 @@ $data = [
     '1060040043' => 0,
 ];
 $feedId = $walmart->updatePrice($data);
+
+// get all orders
+$result = $walmart->getAllOrders();
+
+// get order
+$result = $walmart->getOrder('112233');

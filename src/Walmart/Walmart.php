@@ -29,6 +29,11 @@ class Walmart
     protected $inventory;
 
     /**
+     * @var Sdk\Orders
+     */
+    protected $orders;
+
+    /**
      * @var Sdk\Price
      */
     protected $price;
@@ -44,18 +49,21 @@ class Walmart
      * @param Sdk\Feed|null      $feed
      * @param Sdk\Item|null      $item
      * @param Sdk\Inventory|null $inventory
+     * @param Sdk\Orders|null    $orders
      * @param Sdk\Price|null     $price
      * @param Sdk\Reports|null   $reports
      *
      * @throws \ReflectionException
      */
-    public function __construct(Sdk\Feed $feed = null, Sdk\Item $item = null, Sdk\Inventory $inventory = null, Sdk\Price $price = null, Sdk\Reports $reports = null)
-    {
+    public function __construct(Sdk\Feed $feed = null, Sdk\Item $item = null, Sdk\Inventory $inventory = null, Sdk\Orders $orders = null, Sdk\Price $price = null,
+        Sdk\Reports $reports = null
+    ) {
         InsideConstruct::init(
             [
                 'feed'      => Sdk\Feed::class,
                 'item'      => Sdk\Item::class,
                 'inventory' => Sdk\Inventory::class,
+                'orders'    => Sdk\Orders::class,
                 'price'     => Sdk\Price::class,
                 'reports'   => Sdk\Reports::class,
             ]
@@ -72,6 +80,7 @@ class Walmart
                 'feed'      => Sdk\Feed::class,
                 'item'      => Sdk\Item::class,
                 'inventory' => Sdk\Inventory::class,
+                'orders'    => Sdk\Orders::class,
                 'price'     => Sdk\Price::class,
                 'reports'   => Sdk\Reports::class,
             ]
@@ -124,6 +133,40 @@ class Walmart
         }
 
         return $this->setDataFromReport($result);
+    }
+
+    /**
+     * Get all orders
+     *
+     * @return array
+     */
+    public function getAllOrders(): array
+    {
+        // prepare result
+        $result = [];
+
+        $totalCount = 1;
+        $nextCursor = '';
+        while ($totalCount > 0) {
+            $data = $this->orders->getAll($nextCursor);
+            $totalCount = $data['list']['meta']['totalCount'];
+            $nextCursor = $data['list']['meta']['nextCursor'];
+            $result = array_merge($result, $data['list']['elements']['order']);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get order
+     *
+     * @param string $id
+     *
+     * @return array
+     */
+    public function getOrder(string $id): array
+    {
+        return $this->orders->getOrder($id);
     }
 
     /**

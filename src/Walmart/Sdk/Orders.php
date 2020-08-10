@@ -47,7 +47,7 @@ class Orders extends Base
      *
      * @return array
      */
-    public function shippingUpdate(string $purchaseOrderId, array $data)
+    public function shippingUpdate(string $purchaseOrderId, array $data): array
     {
         return $this->request("orders/$purchaseOrderId/shipping", 'POST', $data);
     }
