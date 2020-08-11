@@ -158,6 +158,26 @@ class Walmart
     }
 
     /**
+     * Get orders by number of days passed
+     *
+     * @param int $days
+     *
+     * @return array
+     */
+    public function getOrdersByDaysPassed(int $days): array
+    {
+        if ($days < 1) {
+            throw new \InvalidArgumentException('The number of days passed should be more the 0');
+        }
+
+        // prepare date
+        $date = (new \DateTime())->setTime(0, 0, 0);
+        $date->modify("-$days days");
+
+        return $this->orders->getByCreatedStartDate($date);
+    }
+
+    /**
      * Get order
      *
      * @param string $orderId

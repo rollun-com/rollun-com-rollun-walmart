@@ -8,10 +8,14 @@ require 'vendor/autoload.php';
 $container = require 'config/container.php';
 $container->setService(rollun\logger\LifeCycleToken::class, \rollun\logger\LifeCycleToken::generateToken());
 
+/** @var \rollun\Walmart\Sdk\Orders $client */
 $client = $container->get(\rollun\Walmart\Sdk\Orders::class);
 
 // get all orders (max 100 per one page)
 $result = $client->getAll();
+
+// get orders by created start date
+$result = $client->getByCreatedStartDate(new \DateTime('01.08.2020'));
 
 // get order by id
 $result = $client->getOrder('4801218385418');

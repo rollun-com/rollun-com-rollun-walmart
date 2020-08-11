@@ -28,6 +28,16 @@ class Orders extends Base
     }
 
     /**
+     * @param \DateTime $createdStartDate
+     *
+     * @return array
+     */
+    public function getByCreatedStartDate(\DateTime $createdStartDate): array
+    {
+        return $this->request("orders?createdStartDate=" . $createdStartDate->format('Y-m-d'));
+    }
+
+    /**
      * https://developer.walmart.com/#/apicenter/marketPlace/latest#getAnOrder
      *
      * @param string $purchaseOrderId

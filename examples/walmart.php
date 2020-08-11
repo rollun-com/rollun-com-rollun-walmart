@@ -9,6 +9,7 @@ require 'vendor/autoload.php';
 $container = require 'config/container.php';
 $container->setService(rollun\logger\LifeCycleToken::class, \rollun\logger\LifeCycleToken::generateToken());
 
+/** @var \rollun\Walmart\Walmart $walmart */
 $walmart = $container->get(\rollun\Walmart\Walmart::class);
 
 // get all items with them reports
@@ -37,6 +38,9 @@ $feedId = $walmart->updatePrice($data);
 
 // get all orders
 $result = $walmart->getAllOrders();
+
+// get orders by number of days passed
+$result = $walmart->getOrdersByDaysPassed(30);
 
 // get order
 $result = $walmart->getOrder('4801218385418');
