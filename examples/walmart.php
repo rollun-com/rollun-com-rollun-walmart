@@ -46,4 +46,4 @@ $result = $walmart->getOrdersByDaysPassed(30);
 $result = $walmart->getOrder('4801218385418');
 
 // update order track number
-$result = $walmart->updateOrderTrackNumber('4801218385418', 'FedEx', '178528291246');
+$result = $walmart->updateOrderTrackNumber('4801218385418', 'FedEx', 'Value', '178528291246', new \DateTime());

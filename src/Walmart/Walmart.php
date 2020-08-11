@@ -190,13 +190,15 @@ class Walmart
     }
 
     /**
-     * @param string $orderId
-     * @param string $carrier
-     * @param string $trackNumber
+     * @param string    $orderId
+     * @param string    $carrier
+     * @param string    $methodCode
+     * @param string    $trackNumber
+     * @param \DateTime $shippingDate
      *
      * @return array
      */
-    public function updateOrderTrackNumber(string $orderId, string $carrier, string $trackNumber): array
+    public function updateOrderTrackNumber(string $orderId, string $carrier, string $methodCode, string $trackNumber, \DateTime $shippingDate): array
     {
         // The package shipment carrier
         $carriers = ['UPS', 'USPS', 'FedEx', 'Airborne', 'OnTrac', 'DHL', 'LS', 'UDS', 'UPSMI', 'FDX', 'PILOT', 'ESTES', 'SAIA'];
@@ -205,39 +207,51 @@ class Walmart
             throw new \InvalidArgumentException('Unknown carrier. Please choose some of:' . implode(', ', $carriers));
         }
 
+        $methodCodes = ['Standard', 'Express', 'Oneday', 'Freight', 'WhiteGlove', 'Value'];
+        if (!in_array($methodCode, $methodCodes)) {
+            throw new \InvalidArgumentException('Unknown method code. Please choose some of:' . implode(', ', $methodCodes));
+        }
+
+        $order = $this->orders->getOrder($orderId);
+        if (!isset($order['order']['orderLines']['orderLine'])) {
+            throw new \InvalidArgumentException('No such order');
+        }
+
         $data = [
             'orderShipment' => [
                 'processMode' => 'PARTIAL_UPDATE',
                 'orderLines'  => [
-                    'orderLine' => [
-                        [
-                            'lineNumber'        => 1,
-                            'orderLineStatuses' => [
-                                'orderLineStatus' => [
-                                    [
-                                        'status'         => 'Shipped',
-                                        'statusQuantity' => [
-                                            'unitOfMeasurement' => 'EACH',
-                                            'amount'            => 1
-                                        ],
-                                        'trackingInfo'   => [
-                                            'shipDateTime'   => (new \DateTime("now", new \DateTimeZone("UTC")))->getTimestamp() . '000',
-                                            'carrierName'    => [
-                                                'otherCarrier' => null,
-                                                'carrier'      => $carrier
-                                            ],
-                                            'methodCode'     => 'Value',
-                                            'trackingNumber' => $trackNumber,
-                                            'trackingURL'    => "https://www.walmart.com/tracking?tracking_id=$trackNumber&order_id=$orderId"
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ],
+                    'orderLine' => [],
                 ]
             ]
         ];
+
+        foreach ($order['order']['orderLines']['orderLine'] as $orderLine) {
+            $data['orderShipment']['orderLines']['orderLine'][] = [
+                'lineNumber'        => $orderLine['lineNumber'],
+                'orderLineStatuses' => [
+                    'orderLineStatus' => [
+                        [
+                            'status'         => 'Shipped',
+                            'statusQuantity' => [
+                                'unitOfMeasurement' => 'EACH',
+                                'amount'            => 1
+                            ],
+                            'trackingInfo'   => [
+                                'shipDateTime'   => $shippingDate->getTimestamp() * 1000,
+                                'carrierName'    => [
+                                    'otherCarrier' => null,
+                                    'carrier'      => $carrier
+                                ],
+                                'methodCode'     => $methodCode,
+                                'trackingNumber' => $trackNumber,
+                                'trackingURL'    => "https://www.walmart.com/tracking?tracking_id=$trackNumber&order_id=$orderId"
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+        }
 
         return $this->orders->shippingUpdate($orderId, $data);
     }
