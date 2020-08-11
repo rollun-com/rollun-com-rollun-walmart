@@ -195,14 +195,13 @@ class Walmart
      * @param string    $methodCode
      * @param string    $trackNumber
      * @param \DateTime $shippingDate
+     * @param array     $lines
      *
      * @return array
      */
-    public function updateOrderTrackNumber(string $orderId, string $carrier, string $methodCode, string $trackNumber, \DateTime $shippingDate): array
+    public function updateOrderTrackNumber(string $orderId, string $carrier, string $methodCode, string $trackNumber, \DateTime $shippingDate, array $lines = [1]): array
     {
-        // The package shipment carrier
         $carriers = ['UPS', 'USPS', 'FedEx', 'Airborne', 'OnTrac', 'DHL', 'LS', 'UDS', 'UPSMI', 'FDX', 'PILOT', 'ESTES', 'SAIA'];
-
         if (!in_array($carrier, $carriers)) {
             throw new \InvalidArgumentException('Unknown carrier. Please choose some of:' . implode(', ', $carriers));
         }
@@ -212,9 +211,8 @@ class Walmart
             throw new \InvalidArgumentException('Unknown method code. Please choose some of:' . implode(', ', $methodCodes));
         }
 
-        $order = $this->orders->getOrder($orderId);
-        if (!isset($order['order']['orderLines']['orderLine'])) {
-            throw new \InvalidArgumentException('No such order');
+        if (empty($lines)) {
+            throw new \InvalidArgumentException('Lines is required');
         }
 
         $data = [
@@ -226,9 +224,9 @@ class Walmart
             ]
         ];
 
-        foreach ($order['order']['orderLines']['orderLine'] as $orderLine) {
+        foreach ($lines as $lineNumber) {
             $data['orderShipment']['orderLines']['orderLine'][] = [
-                'lineNumber'        => $orderLine['lineNumber'],
+                'lineNumber'        => $lineNumber,
                 'orderLineStatuses' => [
                     'orderLineStatus' => [
                         [
