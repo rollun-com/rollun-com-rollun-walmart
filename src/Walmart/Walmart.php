@@ -145,14 +145,13 @@ class Walmart
         // prepare result
         $result = [];
 
-        $totalCount = 1;
-        $nextCursor = '';
-        while ($totalCount > 0) {
+        $nextCursor = null;
+
+        do {
             $data = $this->orders->getAll($nextCursor);
-            $totalCount = $data['list']['meta']['totalCount'];
             $nextCursor = $data['list']['meta']['nextCursor'];
             $result = array_merge($result, $data['list']['elements']['order']);
-        }
+        } while ($nextCursor);
 
         return $result;
     }

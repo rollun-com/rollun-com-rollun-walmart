@@ -10,6 +10,8 @@ namespace rollun\Walmart\Sdk;
  */
 class Orders extends Base
 {
+    public const DEFAULT_PER_PAGE = 200;
+
     /**
      * https://developer.walmart.com/#/apicenter/marketPlace/latest#getAllOrders
      *
@@ -17,11 +19,13 @@ class Orders extends Base
      *
      * @return array
      */
-    public function getAll(string $nextCursor = ''): array
+    public function getAll(?string $nextCursor = ''): array
     {
         $path = "orders";
         if (!empty($nextCursor)) {
-            $path .= "?nextCursor=$nextCursor";
+            $path .= $nextCursor;
+        } else {
+            $path .= '?limit=' . self::DEFAULT_PER_PAGE;
         }
 
         return $this->request($path);
