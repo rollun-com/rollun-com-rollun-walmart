@@ -22,8 +22,8 @@ class Feed extends Base
      */
     public function getFeedStatus(string $feedId, bool $includeDetails = true, int $limit = 20, int $offset = 0): array
     {
-        $includeDetails = $includeDetails === true ? 'true' : 'false';
+        $includeDetailsParam = $includeDetails === true ? 'true' : 'false';
 
-        return $this->request("feeds/$feedId?includeDetails=$includeDetails&limit=$limit&offset=$offset");
+        return $this->request("feeds/$feedId?includeDetails=$includeDetailsParam&limit=$limit&offset=$offset");
     }
 }

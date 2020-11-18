@@ -18,7 +18,8 @@ class InventoryTest extends TestCase
      */
     public function testGetInventory()
     {
-        $data = (new Inventory())->getInventory('1235520056');
+        // TODO Sku may be deleted
+        $data = (new Inventory())->getInventory('1113A');
 
         $this->assertEquals(['sku', 'quantity'], array_keys($data));
     }

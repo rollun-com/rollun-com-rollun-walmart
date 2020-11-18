@@ -94,7 +94,27 @@ class Walmart
      */
     public function getFeedStatus(string $feedId): array
     {
-        return $this->feed->getFeedStatus($feedId, true, 1000, 0);
+        $statuses = [];
+        $limit = 1000;
+        $offset = 0;
+
+        do {
+            $response = $this->feed->getFeedStatus($feedId, true, $limit, $offset);
+            $total = (int) $response['itemsReceived'];
+            $statuses[] = $response['itemDetails']['itemIngestionStatus'];
+            $offset += $limit;
+            usleep(500000);
+        } while ($offset < $total);
+
+        // TODO
+        $response['offset'] = 0;
+        $response['limit'] = $total;
+
+        $response['itemDetails']['itemIngestionStatus'] = array_merge(...$statuses);
+
+        return $response;
+
+        //return $this->feed->getFeedStatus($feedId, true, 1000, 0);
     }
 
     /**

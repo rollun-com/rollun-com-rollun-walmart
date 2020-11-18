@@ -1,10 +1,11 @@
 <?php
 
 
-namespace test\unit\Walmart\Sdk;
+namespace test\unit\Walmart;
 
 
 use PHPUnit\Framework\TestCase;
+use rollun\Walmart\Sdk\Feed;
 use rollun\Walmart\Sdk\Orders;
 use rollun\Walmart\Walmart;
 
@@ -68,5 +69,33 @@ class WalmartTest extends TestCase
                 ]
             ]
         ];
+    }
+
+    public function testGetFeedStatus()
+    {
+        $feedId = uniqid();
+        $total = random_int(1, 3000);
+
+        $feed = $this->getMockBuilder(Feed::class)->getMock();
+        $feed->expects($this->any())->method('getFeedStatus')->with($feedId)->willReturnCallback(
+            function(string $feedId, bool $includeDetails = true, int $limit = 20, int $offset = 0) use ($total){
+                static $counter = 0;
+                $max = ++$counter < ceil($total / 1000) ? 1000 : $total % 1000;
+
+                return [
+                    'itemsReceived' => $total,
+                    'offset' => $offset,
+                    'limit' => $limit,
+                    'itemDetails' => [
+                        'itemIngestionStatus' => array_fill(0, $max, []),
+                    ]
+                ];
+            }
+        );
+
+        $walmart = new Walmart($feed);
+        $response = $walmart->getFeedStatus($feedId);
+
+        $this->assertCount($total, $response['itemDetails']['itemIngestionStatus']);
     }
 }
