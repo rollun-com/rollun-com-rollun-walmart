@@ -22,15 +22,15 @@ class ConfigProvider
     {
         return [
             'dependencies' => [
-                /*'invokables' => [
-                    Sdk\Feed::class      => Sdk\Feed::class,
+                'invokables' => [
+                    /*Sdk\Feed::class      => Sdk\Feed::class,
                     Sdk\Inventory::class => Sdk\Inventory::class,
                     Sdk\Item::class      => Sdk\Item::class,
                     Sdk\Orders::class    => Sdk\Orders::class,
                     Sdk\Price::class     => Sdk\Price::class,
-                    Sdk\Reports::class   => Sdk\Reports::class,
+                    Sdk\Reports::class   => Sdk\Reports::class,*/
                     Walmart::class       => Walmart::class,
-                ],*/
+                ],
                 'abstract_factories' => [
                     WalmartApiAbstractFactory::class,
                 ],
