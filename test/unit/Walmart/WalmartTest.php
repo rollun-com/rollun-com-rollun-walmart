@@ -6,7 +6,9 @@ namespace test\unit\Walmart;
 
 use PHPUnit\Framework\TestCase;
 use rollun\Walmart\Sdk\Feed;
+use rollun\Walmart\Sdk\Inventory;
 use rollun\Walmart\Sdk\Orders;
+use rollun\Walmart\Sdk\Price;
 use rollun\Walmart\Walmart;
 
 class WalmartTest extends TestCase
@@ -97,5 +99,49 @@ class WalmartTest extends TestCase
         $response = $walmart->getFeedStatus($feedId);
 
         $this->assertCount($total, $response['itemDetails']['itemIngestionStatus']);
+    }
+
+    public function testUpdatePrice()
+    {
+        $data = [
+            '12345' => 123.45,
+        ];
+        $requestData = [];
+
+        $price = $this->getMockBuilder(Price::class)->getMock();
+        $price->expects($this->once())
+            ->method('bulkUpdatePrice')
+            ->willReturnCallback(function ($data) use (&$requestData) {
+                $requestData = $data;
+
+                return ['feedId' => uniqid('', true)];
+            });
+
+        $walmart = new Walmart(null, null, null, null, $price);
+        $walmart->updatePrice($data);
+
+        $this->assertTrue(is_string($requestData['Price'][0]['sku']));
+    }
+
+    public function testUpdateQuantity()
+    {
+        $data = [
+            '12345' => 5,
+        ];
+        $requestData = [];
+
+        $inventory = $this->getMockBuilder(Inventory::class)->getMock();
+        $inventory->expects($this->once())
+            ->method('bulkUpdateInventory')
+            ->willReturnCallback(function ($data) use (&$requestData) {
+                $requestData = $data;
+
+                return ['feedId' => uniqid('', true)];
+            });
+
+        $walmart = new Walmart(null, null, $inventory, null, null);
+        $walmart->updateQuantity($data);
+
+        $this->assertTrue(is_string($requestData['Inventory'][0]['sku']));
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace rollun\Walmart;
@@ -46,28 +47,31 @@ class Walmart
     /**
      * Walmart constructor.
      *
-     * @param Sdk\Feed|null      $feed
-     * @param Sdk\Item|null      $item
+     * @param Sdk\Feed|null $feed
+     * @param Sdk\Item|null $item
      * @param Sdk\Inventory|null $inventory
-     * @param Sdk\Orders|null    $orders
-     * @param Sdk\Price|null     $price
-     * @param Sdk\Reports|null   $reports
+     * @param Sdk\Orders|null $orders
+     * @param Sdk\Price|null $price
+     * @param Sdk\Reports|null $reports
      *
      * @throws \ReflectionException
      */
-    public function __construct(Sdk\Feed $feed = null, Sdk\Item $item = null, Sdk\Inventory $inventory = null, Sdk\Orders $orders = null, Sdk\Price $price = null,
+    public function __construct(
+        Sdk\Feed $feed = null,
+        Sdk\Item $item = null,
+        Sdk\Inventory $inventory = null,
+        Sdk\Orders $orders = null,
+        Sdk\Price $price = null,
         Sdk\Reports $reports = null
     ) {
-        InsideConstruct::init(
-            [
-                'feed'      => Sdk\Feed::class,
-                'item'      => Sdk\Item::class,
-                'inventory' => Sdk\Inventory::class,
-                'orders'    => Sdk\Orders::class,
-                'price'     => Sdk\Price::class,
-                'reports'   => Sdk\Reports::class,
-            ]
-        );
+        InsideConstruct::init([
+            'feed' => Sdk\Feed::class,
+            'item' => Sdk\Item::class,
+            'inventory' => Sdk\Inventory::class,
+            'orders' => Sdk\Orders::class,
+            'price' => Sdk\Price::class,
+            'reports' => Sdk\Reports::class,
+        ]);
     }
 
     /**
@@ -75,16 +79,14 @@ class Walmart
      */
     public function __wakeup()
     {
-        InsideConstruct::initWakeup(
-            [
-                'feed'      => Sdk\Feed::class,
-                'item'      => Sdk\Item::class,
-                'inventory' => Sdk\Inventory::class,
-                'orders'    => Sdk\Orders::class,
-                'price'     => Sdk\Price::class,
-                'reports'   => Sdk\Reports::class,
-            ]
-        );
+        InsideConstruct::initWakeup([
+            'feed' => Sdk\Feed::class,
+            'item' => Sdk\Item::class,
+            'inventory' => Sdk\Inventory::class,
+            'orders' => Sdk\Orders::class,
+            'price' => Sdk\Price::class,
+            'reports' => Sdk\Reports::class,
+        ]);
     }
 
     /**
@@ -100,7 +102,7 @@ class Walmart
 
         do {
             $response = $this->feed->getFeedStatus($feedId, true, $limit, $offset);
-            $total = (int) $response['itemsReceived'];
+            $total = (int)$response['itemsReceived'];
             $statuses[] = $response['itemDetails']['itemIngestionStatus'];
             $offset += $limit;
             usleep(500000);
@@ -130,8 +132,11 @@ class Walmart
         $data['nextCursor'] = '';
         while (isset($data['nextCursor'])) {
             $data = $this->item->getItems(1000, $data['nextCursor'], Sdk\Item::LIFECYCLE_STATUS_ACTIVE, true);
-            $result = array_merge($result, $data['ItemResponse']);
+            //$result = array_merge($result, $data['ItemResponse']);
+            $result[] = $data['ItemResponse'];
         }
+
+        $result = array_merge(...$result);
 
         return $this->setDataFromReport($result);
     }
@@ -149,8 +154,11 @@ class Walmart
         $data['nextCursor'] = '';
         while (isset($data['nextCursor'])) {
             $data = $this->item->getItems(1000, $data['nextCursor']);
-            $result = array_merge($result, $data['ItemResponse']);
+            //$result = array_merge($result, $data['ItemResponse']);
+            $result[] = $data['ItemResponse'];
         }
+
+        $result = array_merge(...$result);
 
         return $this->setDataFromReport($result);
     }
@@ -170,8 +178,11 @@ class Walmart
         do {
             $data = $this->orders->getAll($nextCursor);
             $nextCursor = $data['list']['meta']['nextCursor'];
-            $result = array_merge($result, $data['list']['elements']['order']);
+            //$result = array_merge($result, $data['list']['elements']['order']);
+            $result[] = $data['list']['elements']['order'];
         } while ($nextCursor);
+
+        $result = array_merge(...$result);
 
         return $result;
     }
@@ -209,25 +220,35 @@ class Walmart
     }
 
     /**
-     * @param string    $orderId
-     * @param string    $carrier
-     * @param string    $methodCode
-     * @param string    $trackNumber
+     * @param string $orderId
+     * @param string $carrier
+     * @param string $methodCode
+     * @param string $trackNumber
      * @param \DateTime $shippingDate
-     * @param array     $lines
+     * @param array $lines
      *
      * @return array
      */
-    public function updateOrderTrackNumber(string $orderId, string $carrier, string $methodCode, string $trackNumber, \DateTime $shippingDate, array $lines = [1]): array
-    {
-        $carriers = ['UPS', 'USPS', 'FedEx', 'Airborne', 'OnTrac', 'DHL', 'LS', 'UDS', 'UPSMI', 'FDX', 'PILOT', 'ESTES', 'SAIA'];
+    public function updateOrderTrackNumber(
+        string $orderId,
+        string $carrier,
+        string $methodCode,
+        string $trackNumber,
+        \DateTime $shippingDate,
+        array $lines = [1]
+    ): array {
+        $carriers = [
+            'UPS', 'USPS', 'FedEx', 'Airborne', 'OnTrac', 'DHL', 'LS', 'UDS', 'UPSMI', 'FDX', 'PILOT', 'ESTES', 'SAIA'
+        ];
         if (!in_array($carrier, $carriers)) {
             throw new \InvalidArgumentException('Unknown carrier. Please choose some of:' . implode(', ', $carriers));
         }
 
         $methodCodes = ['Standard', 'Express', 'Oneday', 'Freight', 'WhiteGlove', 'Value'];
         if (!in_array($methodCode, $methodCodes)) {
-            throw new \InvalidArgumentException('Unknown method code. Please choose some of:' . implode(', ', $methodCodes));
+            throw new \InvalidArgumentException(
+                'Unknown method code. Please choose some of:' . implode(', ', $methodCodes)
+            );
         }
 
         if (empty($lines)) {
@@ -237,32 +258,33 @@ class Walmart
         $data = [
             'orderShipment' => [
                 'processMode' => 'PARTIAL_UPDATE',
-                'orderLines'  => [
+                'orderLines' => [
                     'orderLine' => [],
                 ]
             ]
         ];
 
         foreach ($lines as $lineNumber) {
+            $trackingUrl = "https://www.walmart.com/tracking?tracking_id=$trackNumber&order_id=$orderId";
             $data['orderShipment']['orderLines']['orderLine'][] = [
-                'lineNumber'        => $lineNumber,
+                'lineNumber' => $lineNumber,
                 'orderLineStatuses' => [
                     'orderLineStatus' => [
                         [
-                            'status'         => 'Shipped',
+                            'status' => 'Shipped',
                             'statusQuantity' => [
                                 'unitOfMeasurement' => 'EACH',
-                                'amount'            => 1
+                                'amount' => 1
                             ],
-                            'trackingInfo'   => [
-                                'shipDateTime'   => $shippingDate->getTimestamp() * 1000,
-                                'carrierName'    => [
+                            'trackingInfo' => [
+                                'shipDateTime' => $shippingDate->getTimestamp() * 1000,
+                                'carrierName' => [
                                     'otherCarrier' => null,
-                                    'carrier'      => $carrier
+                                    'carrier' => $carrier
                                 ],
-                                'methodCode'     => $methodCode,
+                                'methodCode' => $methodCode,
                                 'trackingNumber' => $trackNumber,
-                                'trackingURL'    => "https://www.walmart.com/tracking?tracking_id=$trackNumber&order_id=$orderId"
+                                'trackingURL' => $trackingUrl,
                             ]
                         ]
                     ]
@@ -285,13 +307,13 @@ class Walmart
             'InventoryHeader' => [
                 'version' => '1.4'
             ],
-            'Inventory'       => []
+            'Inventory' => []
         ];
         foreach ($data as $sku => $quantity) {
             $requestData['Inventory'][] = [
-                'sku'      => $sku,
+                'sku' => (string) $sku,
                 'quantity' => [
-                    'unit'   => 'EACH',
+                    'unit' => 'EACH',
                     'amount' => $quantity
                 ]
             ];
@@ -317,17 +339,17 @@ class Walmart
             'PriceHeader' => [
                 'version' => '1.7'
             ],
-            'Price'       => []
+            'Price' => []
         ];
         foreach ($data as $sku => $price) {
             $requestData['Price'][] = [
-                'sku'     => $sku,
+                'sku' =>  (string) $sku,
                 'pricing' => [
                     [
                         'currentPriceType' => 'BASE',
-                        'currentPrice'     => [
+                        'currentPrice' => [
                             'currency' => 'USD',
-                            'amount'   => $price
+                            'amount' => $price
                         ]
                     ]
                 ]
