@@ -171,7 +171,7 @@ class Base
 
             // TODO
             if ($this->isDebug()) {
-                $this->debug($jsonData);
+                $this->writeLog($jsonData);
             }
 
             $headers[] = "Content-Length: " . strlen($jsonData);
@@ -201,10 +201,10 @@ class Base
     }
 
 
-    protected function debug($message)
+    protected function writeLog($message)
     {
-        $f = fopen('data/logs/walmart.log', '+w');
-        fwrite($f, $message);
+        $f = fopen('data/logs/walmart.log', 'a');
+        fwrite($f, date('Y-m-d H:i:s') . ' - ' . $message);
         fclose($f);
     }
 }
