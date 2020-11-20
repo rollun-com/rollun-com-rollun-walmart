@@ -39,10 +39,12 @@ class Base
      */
     protected $logger;
 
+    protected $debug;
+
     /**
      * Base constructor.
      */
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface $logger = null, $debug = false)
     {
         $this->correlationId = uniqid();
 
@@ -61,7 +63,9 @@ class Base
 
         $this->authHash = base64_encode("$clientId:$clientSecret");
 
-        InsideConstruct::init(['logger' => LoggerInterface::class]);
+        //InsideConstruct::init(['logger' => LoggerInterface::class]);
+        $this->logger = $logger;
+        $this->debug = $debug;
     }
 
     /**
@@ -69,7 +73,12 @@ class Base
      */
     public function __sleep()
     {
-        return ['correlationId', 'baseUrl', 'authHash'];
+        return [
+            'correlationId',
+            'baseUrl',
+            'authHash',
+            'debug',
+        ];
     }
 
     /**
@@ -78,6 +87,11 @@ class Base
     public function __wakeup()
     {
         InsideConstruct::initWakeup(['logger' => LoggerInterface::class]);
+    }
+
+    public function isDebug()
+    {
+        return $this->debug;
     }
 
     /**
@@ -154,6 +168,12 @@ class Base
 
         if (!empty($data)) {
             $jsonData = json_encode($data);
+
+            // TODO
+            if ($this->isDebug()) {
+                $this->debug($jsonData);
+            }
+
             $headers[] = "Content-Length: " . strlen($jsonData);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
         }
@@ -178,5 +198,13 @@ class Base
         }
 
         return $result;
+    }
+
+
+    protected function debug($message)
+    {
+        $f = fopen('data/logs/walmart.log', '+w');
+        fwrite($f, $message);
+        fclose($f);
     }
 }
