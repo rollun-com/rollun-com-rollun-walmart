@@ -39,6 +39,9 @@ class Base
      */
     protected $logger;
 
+    /**
+     * @var bool
+     */
     protected $debug;
 
     /**
@@ -169,9 +172,10 @@ class Base
         if (!empty($data)) {
             $jsonData = json_encode($data);
 
-            // TODO
             if ($this->isDebug()) {
-                $this->writeLog($jsonData);
+                $this->logger->debug('Walmart request', [
+                    'request' => $jsonData,
+                ]);
             }
 
             $headers[] = "Content-Length: " . strlen($jsonData);
@@ -189,6 +193,12 @@ class Base
             $this->logger->error(curl_error($ch));
         }
 
+        if ($this->isDebug()) {
+            $this->logger->debug('Walmart response', [
+                'response' => $response,
+            ]);
+        }
+
         curl_close($ch);
 
         $result = !empty($response) ? json_decode($response, true) : [];
@@ -198,13 +208,5 @@ class Base
         }
 
         return $result;
-    }
-
-
-    protected function writeLog($message)
-    {
-        $f = fopen('data/logs/walmart.log', 'a');
-        fwrite($f, date('Y-m-d H:i:s') . ' - ' . $message);
-        fclose($f);
     }
 }
