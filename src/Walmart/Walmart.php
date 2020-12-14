@@ -375,13 +375,10 @@ class Walmart
         if (!empty($result)) {
             $report = $this->reports->getItemReport();
             if (!empty($report)) {
-                // set count from report
+                $report = array_column($report, null, 'sku');
                 foreach ($result as $k => $row) {
-                    foreach ($report as $reportRow) {
-                        if ($row['sku'] == $reportRow['sku']) {
-                            $result[$k]['report'] = $reportRow;
-                            break 1;
-                        }
+                    if (array_key_exists($row['sku'], $report)) {
+                        $result[$k]['report'] = $report[$row['sku']];
                     }
                 }
             }
