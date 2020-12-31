@@ -12,7 +12,6 @@ $appEnv = getenv('APP_ENV');
 
 $aggregator = new ConfigAggregator([
     // Include your config providers here.
-    \rollun\logger\ConfigProvider::class,
     \rollun\Walmart\ConfigProvider::class,
 
     // Default App module config
