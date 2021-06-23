@@ -147,10 +147,28 @@ class Walmart
      */
     public function getAllItems()
     {
-        // prepare result
-        $result = [];
+        return $this->getInventoryFromReport();
 
-        // get items
+        // prepare result
+        /*$result = [];
+
+        $limit = 50;
+        $offset = 0;
+        do {
+            $response = $this->item->getPaginatedItems($limit, $offset);
+            if (!isset($response['ItemResponse'])) {
+                break;
+            }
+            $result[] = $response['ItemResponse'];
+            $offset += $limit;
+            //usleep(250000);
+        } while($response['ItemResponse']);
+
+        $result = array_merge(...$result);
+
+        return $this->setDataFromReport($result);*/
+
+        /*// get items
         $data['nextCursor'] = '';
         while (isset($data['nextCursor'])) {
             $data = $this->item->getItems(1000, $data['nextCursor']);
@@ -160,7 +178,51 @@ class Walmart
 
         $result = array_merge(...$result);
 
-        return $this->setDataFromReport($result);
+        return $this->setDataFromReport($result);*/
+    }
+
+    /**
+     * @return array[]
+     *
+     * @todo
+     */
+    protected function getInventoryFromReport()
+    {
+        $keys = [
+            "mart",
+            "sku",
+            "wpid",
+            "upc",
+            "gtin",
+            "productName",
+            "shelf",
+            "productType",
+            "price",
+            "publishedStatus",
+            "unpublishedReasons",
+            "lifecycleStatus"
+        ];
+        $report = $this->reports->getItemReport();
+        $report = array_column($report, null, 'sku');
+        $results = array_map(function ($item) use ($keys) {
+            foreach ($keys as $key) {
+                if ($key === 'publishedStatus') {
+                    $value = $item['publish_status'];
+                } elseif ($key === 'price') {
+                    $value = ['amount' => $item['price']];
+                } elseif (array_key_exists($key, $item)) {
+                    $value = $item[$key];
+                } else {
+                    $temp = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
+                    $value = $item[$temp] ?? null;
+                }
+                $result[$key] = $value;
+            }
+            $result['report'] = $item;
+            return $result;
+        }, $report);
+
+        return $results;
     }
 
     /**
