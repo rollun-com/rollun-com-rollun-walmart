@@ -226,6 +226,23 @@ class Walmart
     }
 
     /**
+     * @param $ids
+     *
+     * @todo
+     */
+    public function deleteItems($ids)
+    {
+        foreach ($ids as $id) {
+            try {
+                $this->item->deleteItem($id);
+            } catch (\Throwable $exception) {
+
+            }
+        }
+    }
+
+
+    /**
      * Get all orders
      *
      * @return array

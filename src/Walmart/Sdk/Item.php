@@ -70,4 +70,16 @@ class Item extends Base
 
         return $this->request($path);
     }
+
+    public function deleteItem($sku)
+    {
+        $path = "/v3/items/$sku";
+        $response = $this->request($path, 'DELETE');
+        if (!empty($response['errors'])) {
+            $this->logger->error(implode(' | ', $response['errors']));
+            return false;
+        }
+
+        return true;
+    }
 }
