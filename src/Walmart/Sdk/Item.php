@@ -73,7 +73,7 @@ class Item extends Base
 
     public function deleteItem($sku)
     {
-        $path = "/v3/items/$sku";
+        $path = "items/$sku";
         $response = $this->request($path, 'DELETE');
         if (!empty($response['errors'])) {
             $this->logger->error(implode(' | ', $response['errors']));
