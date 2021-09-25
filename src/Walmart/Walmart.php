@@ -10,68 +10,66 @@ use rollun\Walmart\Sdk;
 /**
  * Class Walmart
  *
- * @author r.ratsun <r.ratsun.rollun@gmail.com>
+ * @property Sdk\Feed $feed
+ * @property Sdk\Inventory $inventory
+ * @property Sdk\Item $item
+ * @property Sdk\Orders $orders
+ * @property Sdk\Price $price
+ * @property Sdk\Reports $reports
+ * @property Sdk\Utilities $utilities
+ * @property Sdk\Insights $insights
+ *
+ * @method Sdk\Feed getApiFeed()
+ * @method Sdk\Inventory getApiInventory()
+ * @method Sdk\Item getApiItem()
+ * @method Sdk\Orders getApiOrders()
+ * @method Sdk\Price getApiPrice()
+ * @method Sdk\Reports getApiReports()
+ * @method Sdk\Utilities getApiUtilities()
+ * @method Sdk\Insights getApiInsights()
  */
 class Walmart
 {
-    /**
-     * @var Sdk\Feed
-     */
-    protected $feed;
-
-    /**
-     * @var Sdk\Item
-     */
-    protected $item;
-
-    /**
-     * @var Sdk\Inventory
-     */
-    protected $inventory;
-
-    /**
-     * @var Sdk\Orders
-     */
-    protected $orders;
-
-    /**
-     * @var Sdk\Price
-     */
-    protected $price;
-
-    /**
-     * @var Sdk\Reports
-     */
-    protected $reports;
+    protected $apis = [];
 
     /**
      * Walmart constructor.
-     *
-     * @param Sdk\Feed|null $feed
-     * @param Sdk\Item|null $item
-     * @param Sdk\Inventory|null $inventory
-     * @param Sdk\Orders|null $orders
-     * @param Sdk\Price|null $price
-     * @param Sdk\Reports|null $reports
-     *
-     * @throws \ReflectionException
      */
-    public function __construct(
-        Sdk\Feed $feed = null,
-        Sdk\Item $item = null,
-        Sdk\Inventory $inventory = null,
-        Sdk\Orders $orders = null,
-        Sdk\Price $price = null,
-        Sdk\Reports $reports = null
-    ) {
-        InsideConstruct::init([
-            'feed' => Sdk\Feed::class,
-            'item' => Sdk\Item::class,
-            'inventory' => Sdk\Inventory::class,
-            'orders' => Sdk\Orders::class,
-            'price' => Sdk\Price::class,
-            'reports' => Sdk\Reports::class,
-        ]);
+    public function __construct($apis) {
+        $this->apis = $apis;
+    }
+
+    public function getApi($api)
+    {
+        if (array_key_exists($api, $this->apis)) {
+            return $this->apis[$api];
+        }
+
+        throw new \Exception('Api not exist');
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (strpos($name, 'getApi') === 0) {
+            $apiName = strtolower(substr($name, 6));
+            return $this->getApi($apiName);
+        }
+
+        throw new \Exception('Unknown method');
+    }
+
+    public function __get($name)
+    {
+        if (array_key_exists($name, $this->apis)) {
+            return $this->apis[$name];
+        }
+
+        throw new \Exception('Unknown property');
+    }
+
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->apis);
     }
 
     /**
@@ -129,12 +127,17 @@ class Walmart
         $result = [];
 
         // get items
-        $data['nextCursor'] = '';
-        while (isset($data['nextCursor'])) {
-            $data = $this->item->getItems(1000, $data['nextCursor'], Sdk\Item::LIFECYCLE_STATUS_ACTIVE, true);
-            //$result = array_merge($result, $data['ItemResponse']);
+        do {
+            $data = $this->item->getItems(
+                200,
+                $nextCursor ?? null,
+                Sdk\Item::LIFECYCLE_STATUS_ACTIVE,
+                Sdk\Item::PUBLISHED_STATUS_PUBLISHED
+            );
             $result[] = $data['ItemResponse'];
-        }
+            $nextCursor = $data['nextCursor'] ?? null;
+            usleep(250000);
+        } while ($nextCursor);
 
         $result = array_merge(...$result);
 
@@ -147,38 +150,23 @@ class Walmart
      */
     public function getAllItems()
     {
-        return $this->getInventoryFromReport();
-
         // prepare result
-        /*$result = [];
+        $result = [];
 
-        $limit = 50;
-        $offset = 0;
+        // get items
         do {
-            $response = $this->item->getPaginatedItems($limit, $offset);
-            if (!isset($response['ItemResponse'])) {
-                break;
-            }
-            $result[] = $response['ItemResponse'];
-            $offset += $limit;
-            //usleep(250000);
-        } while($response['ItemResponse']);
-
-        $result = array_merge(...$result);
-
-        return $this->setDataFromReport($result);*/
-
-        /*// get items
-        $data['nextCursor'] = '';
-        while (isset($data['nextCursor'])) {
-            $data = $this->item->getItems(1000, $data['nextCursor']);
-            //$result = array_merge($result, $data['ItemResponse']);
+            $data = $this->item->getItems(
+                200,
+                $nextCursor ?? null
+            );
             $result[] = $data['ItemResponse'];
-        }
+            $nextCursor = $data['nextCursor'] ?? null;
+            usleep(250000);
+        } while (isset($data['nextCursor']));
 
         $result = array_merge(...$result);
 
-        return $this->setDataFromReport($result);*/
+        return $this->setDataFromReport($result);
     }
 
     /**

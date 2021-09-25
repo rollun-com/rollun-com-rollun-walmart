@@ -2,3 +2,5 @@
 .env
 composer.lock
 vendor/
+tmp
+bin/test*

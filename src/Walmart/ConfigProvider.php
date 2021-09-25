@@ -29,11 +29,26 @@ class ConfigProvider
                     Sdk\Orders::class    => Sdk\Orders::class,
                     Sdk\Price::class     => Sdk\Price::class,
                     Sdk\Reports::class   => Sdk\Reports::class,*/
-                    Walmart::class       => Walmart::class,
+                    //Walmart::class       => Walmart::class,
+                ],
+                'factories' => [
+                    Walmart::class => WalmartFactory::class,
                 ],
                 'abstract_factories' => [
                     WalmartApiAbstractFactory::class,
                 ],
+            ],
+            WalmartFactory::KEY => [
+                WalmartFactory::KEY_APIS => [
+                    'feed' => Sdk\Feed::class,
+                    'inventory' => Sdk\Inventory::class,
+                    'item' => Sdk\Item::class,
+                    'orders' => Sdk\Orders::class,
+                    'price' => Sdk\Price::class,
+                    'reports' => Sdk\Reports::class,
+                    'utilities' => Sdk\Utilities::class,
+                    'insights' => Sdk\Insights::class,
+                ]
             ],
             WalmartApiAbstractFactory::KEY => [
                 Sdk\Feed::class => Sdk\Feed::class,
@@ -42,7 +57,7 @@ class ConfigProvider
                 Sdk\Orders::class => Sdk\Orders::class,
                 Sdk\Price::class => Sdk\Price::class,
                 Sdk\Reports::class => Sdk\Reports::class,
-                Walmart::class => Walmart::class,
+                //Walmart::class => Walmart::class,
             ]
         ];
     }

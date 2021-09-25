@@ -14,6 +14,11 @@ class Item extends Base
     public const LIFECYCLE_STATUS_ARCHIVED = 'ARCHIVED';
     public const LIFECYCLE_STATUS_RETIRED = 'RETIRED';
 
+    public const PUBLISHED_STATUS_PUBLISHED = 'PUBLISHED';
+    public const PUBLISHED_STATUS_UNPUBLISHED = 'UNPUBLISHED';
+
+    public const DEFAULT_LIMIT = 20;
+
     /**
      * https://developer.walmart.com/#/apicenter/marketPlace/latest#getAllItems
      *
@@ -25,17 +30,25 @@ class Item extends Base
      * @return array
      */
     public function getItems(
-        int $limit = 20,
-        string $nextCursor = '',
-        string $lifecycleStatus = self::LIFECYCLE_STATUS_ACTIVE,
-        ?bool $isPublished = null
+        int $limit = self::DEFAULT_LIMIT,
+        string $nextCursor = null,
+        string $lifecycleStatus = null,
+        string $publishedStatus = null
     ): array {
-        $path = "items?limit=$limit&lifecycleStatus=$lifecycleStatus";
-        if (!empty($nextCursor)) {
-            $path .= "&nextCursor=$nextCursor";
+        $path = "items?limit=$limit";
+
+        $nextCursor = $nextCursor ?: '*';
+        $path .= "&nextCursor=$nextCursor";
+
+        if ($lifecycleStatus) {
+            $path .= "&lifecycleStatus=$lifecycleStatus";
         }
-        if ($isPublished !== null) {
-            $publishedStatus = empty($isPublished) ? 'UNPUBLISHED' : 'PUBLISHED';
+
+        if ($publishedStatus) {
+            if (!in_array($publishedStatus, [self::PUBLISHED_STATUS_PUBLISHED, self::PUBLISHED_STATUS_UNPUBLISHED])) {
+                throw new \Exception('Unsupported published status');
+            }
+
             $path .= "&publishedStatus=$publishedStatus";
         }
 
