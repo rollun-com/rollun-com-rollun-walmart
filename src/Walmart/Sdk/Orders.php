@@ -65,4 +65,9 @@ class Orders extends Base
     {
         return $this->request("orders/$purchaseOrderId/shipping", 'POST', $data);
     }
+
+    public function aknowledge($orderId)
+    {
+        return $this->request("orders/$orderId/acknowledge", 'POST');
+    }
 }
