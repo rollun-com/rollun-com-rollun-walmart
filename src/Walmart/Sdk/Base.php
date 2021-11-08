@@ -172,12 +172,6 @@ class Base
         if (!empty($data)) {
             $jsonData = json_encode($data);
 
-            if ($this->isDebug()) {
-                $this->logger->debug('Walmart request', [
-                    'request' => $jsonData,
-                ]);
-            }
-
             $headers[] = "Content-Length: " . strlen($jsonData);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
         }
@@ -186,6 +180,15 @@ class Base
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        if ($this->isDebug()) {
+            $this->logger->debug('Walmart request', [
+                'url' => $this->baseUrl . $path,
+                'method' => $method,
+                'headers' => $headers,
+                'body' => $jsonData ?? null,
+            ]);
+        }
 
         $response = curl_exec($ch);
 
