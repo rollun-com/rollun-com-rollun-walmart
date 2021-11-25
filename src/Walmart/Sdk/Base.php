@@ -100,14 +100,15 @@ class Base
 
     /**
      * @return array
+     * @todo no cache serialization
      */
     public function __sleep()
     {
         return [
-            'correlationId',
             'baseUrl',
             'authHash',
             'debug',
+            'sandbox',
         ];
     }
 
@@ -116,7 +117,9 @@ class Base
      */
     public function __wakeup()
     {
-        InsideConstruct::initWakeup(['logger' => LoggerInterface::class]);
+        InsideConstruct::initWakeup([
+            'logger' => LoggerInterface::class
+        ]);
     }
 
     public function isDebug()
