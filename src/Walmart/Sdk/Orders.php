@@ -31,6 +31,24 @@ class Orders extends Base
         return $this->request($path);
     }
 
+    public function getOrders(
+        int $limit = self::DEFAULT_PER_PAGE,
+        \DateTime $startDate = null,
+        \DateTime $endDate = null
+    ): array {
+        $path = "orders?limit=$limit";
+
+        if ($startDate) {
+            $path .= "&createdStartDate=" . $startDate->format('Y-m-d');
+        }
+
+        if ($endDate) {
+            $path .= "&createdEndDate=" . $endDate->format('Y-m-d');
+        }
+
+        return $this->request($path);
+    }
+
     /**
      * @param \DateTime $createdStartDate
      *

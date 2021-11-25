@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace rollun\Walmart\Sdk;
 
 use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 use rollun\dic\InsideConstruct;
+use rollun\Walmart\SessionCache;
 use Zend\ServiceManager\Exception\InvalidArgumentException;
 
 /**
@@ -15,8 +17,11 @@ use Zend\ServiceManager\Exception\InvalidArgumentException;
 class Base
 {
     public const API_URL = 'https://marketplace.walmartapis.com/v3/';
+
     public const SANDBOX_API_URL = 'https://sandbox.walmartapis.com/v3/';
+
     public const NAME = 'Walmart Marketplace';
+
     public const VERSION = '1.0.0';
 
     /**
@@ -27,7 +32,7 @@ class Base
     /**
      * @var string
      */
-    protected $correlationId;
+    private $correlationId;
 
     /**
      * @var string
@@ -45,20 +50,31 @@ class Base
     protected $debug;
 
     /**
+     * @var string
+     */
+    //private static $correlationId;
+
+    protected $cache;
+
+    protected $sandbox;
+
+    /**
      * Base constructor.
      */
-    public function __construct(LoggerInterface $logger = null, $debug = false)
-    {
-        $this->correlationId = uniqid();
+    public function __construct(
+        string $clientId,
+        string $clientSecret,
+        CacheInterface $cache,
+        LoggerInterface $logger = null,
+        ?bool $debug = false,
+        ?bool $sandbox = false
+    ) {
+        $this->correlationId = $this->getCorrelationId();
 
-        $clientId = getenv('WALMART_CLIENT_ID');
-        $clientSecret = getenv('WALMART_CLIENT_SECRET');
+        $this->cache = $cache;
+        $this->sandbox = $sandbox;
 
-        if (empty($clientId) || empty($clientSecret)) {
-            throw new InvalidArgumentException("CLIENT_ID and CLIENT_SECRET is required");
-        }
-
-        if (empty(getenv('WALMART_SANDBOX'))) {
+        if (!$this->sandbox) {
             $this->baseUrl = self::API_URL;
         } else {
             $this->baseUrl = self::SANDBOX_API_URL;
@@ -66,9 +82,20 @@ class Base
 
         $this->authHash = base64_encode("$clientId:$clientSecret");
 
-        //InsideConstruct::init(['logger' => LoggerInterface::class]);
         $this->logger = $logger;
         $this->debug = $debug;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCorrelationId()
+    {
+        if ($this->correlationId === null) {
+            $this->correlationId = uniqid('', true);
+        }
+
+        return $this->correlationId;
     }
 
     /**
@@ -97,12 +124,18 @@ class Base
         return $this->debug;
     }
 
+    public function isSandbox()
+    {
+        return $this->sandbox;
+    }
+
     /**
      * @return string
      */
     public function getToken(): string
     {
-        if (empty($_SESSION['walmartAuth']) || $_SESSION['walmartAuth']['lifetime'] <= time()) {
+        $key = 'authToken' . ($this->sandbox ? 'Sandbox' : 'Production');
+        if (!$this->cache->has($key)) {
             $ch = curl_init();
             $options = [
                 CURLOPT_URL            => $this->baseUrl . "token",
@@ -117,7 +150,7 @@ class Base
                     "Content-Type: application/x-www-form-urlencoded",
                     "Accept: application/json",
                     "WM_SVC.NAME: " . self::NAME,
-                    "WM_QOS.CORRELATION_ID: " . $this->correlationId,
+                    "WM_QOS.CORRELATION_ID: " . $this->getCorrelationId(),
                     "WM_SVC.VERSION: " . self::VERSION
                 ]
             ];
@@ -138,13 +171,12 @@ class Base
                 return 'no-access-token';
             }
 
-            $_SESSION['walmartAuth'] = [
-                'access_token' => $responseData->access_token,
-                'lifetime'     => time() + $responseData->expires_in
-            ];
+            $this->cache->set('authToken', $responseData->access_token, $responseData->expires_in);
+
+            return $responseData->access_token;
         }
 
-        return $_SESSION['walmartAuth']['access_token'];
+        return $this->cache->get('authToken');
     }
 
     /**
@@ -161,7 +193,7 @@ class Base
         // prepare headers
         $headers = [
             "WM_SVC.NAME: " . self::NAME,
-            "WM_QOS.CORRELATION_ID: " . $this->correlationId,
+            "WM_QOS.CORRELATION_ID: " . $this->getCorrelationId(),
             "WM_SVC.VERSION: " . self::VERSION,
             "WM_SEC.ACCESS_TOKEN: " . $this->getToken(),
             "Authorization: Basic " . $this->authHash,
@@ -171,9 +203,11 @@ class Base
 
         if (!empty($data)) {
             $jsonData = json_encode($data);
-
             $headers[] = "Content-Length: " . strlen($jsonData);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+        } elseif (strtoupper($method) === 'POST') {
+            $headers[] = "Content-Length: 0";
+            curl_setopt($ch, CURLOPT_POSTFIELDS, '');
         }
 
         curl_setopt($ch, CURLOPT_URL, $this->baseUrl . $path);

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace test\functional\Walmart;
+namespace test\integration\Walmart;
 
 
 use PHPUnit\Framework\TestCase;
@@ -15,10 +15,13 @@ class WalmartApiAbstractFactoryTest extends TestCase
 {
     public function testCreateApiInstance()
     {
-        $container = $this->getContainer([
+        $container = getTestContainer([
             WalmartApiAbstractFactory::KEY => [
                 Price::class => [
-                    'debug' => true,
+                    WalmartApiAbstractFactory::KEY_DEBUG => true,
+                    WalmartApiAbstractFactory::KEY_SANDBOX => true,
+                    WalmartApiAbstractFactory::KEY_CLIENT_ID => getenv('SANDBOX_WALMART_CLIENT_ID'),
+                    WalmartApiAbstractFactory::KEY_CLIENT_SECRET => getenv('SANDBOX_WALMART_CLIENT_SECRET'),
                 ]
             ]
         ]);
@@ -28,22 +31,6 @@ class WalmartApiAbstractFactoryTest extends TestCase
 
         $this->assertInstanceOf(Price::class, $price);
         $this->assertTrue($price->isDebug());
-    }
-
-    protected function getContainer($replaceConfig = [])
-    {
-        global $container;
-
-        $config = $container->get('config');
-        $config = array_merge($config, $replaceConfig);
-
-        $cloned = new ServiceManager();
-        (new Config($config['dependencies']))->configureServiceManager($cloned);
-        $cloned->setService('config', $config);
-
-        $lifeCycleToken = LifeCycleToken::generateToken();
-        $cloned->setService(LifeCycleToken::class, $lifeCycleToken);
-
-        return $cloned;
+        $this->assertTrue($price->isSandbox());
     }
 }

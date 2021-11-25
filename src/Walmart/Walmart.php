@@ -60,8 +60,8 @@ class Walmart
 
     public function __get($name)
     {
-        if (array_key_exists($name, $this->apis)) {
-            return $this->apis[$name];
+        if ($api = $this->getApi($name)) {
+            return $api;
         }
 
         throw new \Exception('Unknown property');
@@ -69,7 +69,7 @@ class Walmart
 
     public function __isset($name)
     {
-        return array_key_exists($name, $this->apis);
+        return !empty($this->getApi($name));
     }
 
     /**

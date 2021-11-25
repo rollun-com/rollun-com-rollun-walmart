@@ -13,7 +13,7 @@ class WalmartTest extends TestCase
 {
     public function testGetAllOrders()
     {
-        $walmart = new \rollun\Walmart\Walmart();
+        $walmart = getTestContainer()->get(Walmart::class);
         $orders = $walmart->getAllOrders();
 
         $this->assertNotEmpty($orders);
@@ -28,12 +28,12 @@ class WalmartTest extends TestCase
         $this->assertCount(1145, $response['itemDetails']['itemIngestionStatus']);
     }*/
 
-    public function testItemsWithReport()
+    /*public function testItemsWithReport()
     {
         $walmart = new Walmart();
         $items = $walmart->getActiveItems();
 
         $this->assertNotEmpty($items[0]['report']);
         $this->assertNotEmpty($items[count($items) - 1]['report']);
-    }
+    }*/
 }

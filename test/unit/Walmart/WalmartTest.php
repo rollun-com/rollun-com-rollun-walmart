@@ -20,7 +20,7 @@ class WalmartTest extends TestCase
             return $this->orderData();
         });
 
-        $walmart = new Walmart(null, null, null, $orders, null, null);
+        $walmart = new Walmart(['orders' => $orders]);
         $result = $walmart->getAllOrders();
 
         $this->assertCount(225, $result);
@@ -56,18 +56,6 @@ class WalmartTest extends TestCase
                             $current < $total ? $limit : $total % $limit,
                             array_fill_keys(['purchaseOrderId'], (string) random_int(1000000000000, 9999999999999))
                         )
-                        /*[
-
-                            "purchaseOrderId" => "2806493413658",
-                            "customerOrderId" => "5502083356360",
-                            "customerEmailId" => "40CA3DC242394A028B3CE178A1D88898@relay.walmart.com",
-                            "orderDate" => 1601872604000,
-                            "shippingInfo" => [],
-                            "orderLines" => [
-                                "orderLine" => []
-                            ]
-                        ]*/
-                    //]
                 ]
             ]
         ];
@@ -78,7 +66,7 @@ class WalmartTest extends TestCase
         $feedId = uniqid();
         $total = random_int(1, 3000);
 
-        $feed = $this->getMockBuilder(Feed::class)->getMock();
+        $feed = $this->createMock(Feed::class);
         $feed->expects($this->any())->method('getFeedStatus')->with($feedId)->willReturnCallback(
             function(string $feedId, bool $includeDetails = true, int $limit = 20, int $offset = 0) use ($total){
                 static $counter = 0;
@@ -95,7 +83,7 @@ class WalmartTest extends TestCase
             }
         );
 
-        $walmart = new Walmart($feed);
+        $walmart = new Walmart(['feed' => $feed]);
         $response = $walmart->getFeedStatus($feedId);
 
         $this->assertCount($total, $response['itemDetails']['itemIngestionStatus']);
@@ -108,7 +96,7 @@ class WalmartTest extends TestCase
         ];
         $requestData = [];
 
-        $price = $this->getMockBuilder(Price::class)->getMock();
+        $price = $this->createMock(Price::class);
         $price->expects($this->once())
             ->method('bulkUpdatePrice')
             ->willReturnCallback(function ($data) use (&$requestData) {
@@ -117,7 +105,7 @@ class WalmartTest extends TestCase
                 return ['feedId' => uniqid('', true)];
             });
 
-        $walmart = new Walmart(null, null, null, null, $price);
+        $walmart = new Walmart(['price' => $price]);
         $walmart->updatePrice($data);
 
         $this->assertTrue(is_string($requestData['Price'][0]['sku']));
@@ -130,7 +118,7 @@ class WalmartTest extends TestCase
         ];
         $requestData = [];
 
-        $inventory = $this->getMockBuilder(Inventory::class)->getMock();
+        $inventory = $this->createMock(Inventory::class);
         $inventory->expects($this->once())
             ->method('bulkUpdateInventory')
             ->willReturnCallback(function ($data) use (&$requestData) {
@@ -139,7 +127,7 @@ class WalmartTest extends TestCase
                 return ['feedId' => uniqid('', true)];
             });
 
-        $walmart = new Walmart(null, null, $inventory, null, null);
+        $walmart = new Walmart(['inventory' => $inventory]);
         $walmart->updateQuantity($data);
 
         $this->assertTrue(is_string($requestData['Inventory'][0]['sku']));

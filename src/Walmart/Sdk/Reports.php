@@ -10,8 +10,9 @@ namespace rollun\Walmart\Sdk;
  */
 class Reports extends Base
 {
-    const DATA_DIR = 'data';
-    const ZIP_FILE_NAME = self::DATA_DIR . '/tmp_walmart_report.zip';
+    public const DATA_DIR = 'data';
+
+    public const ZIP_FILE_NAME = self::DATA_DIR . '/tmp_walmart_report.zip';
 
     /**
      * https://developer.walmart.com/#/apicenter/marketPlace/latest#getReport
@@ -41,7 +42,7 @@ class Reports extends Base
         // prepare headers
         $headers = [
             "WM_SVC.NAME: " . self::NAME,
-            "WM_QOS.CORRELATION_ID: " . $this->correlationId,
+            "WM_QOS.CORRELATION_ID: " . $this->getCorrelationId(),
             "WM_SVC.VERSION: " . self::VERSION,
             "WM_SEC.ACCESS_TOKEN: " . $this->getToken(),
             "Authorization: Basic " . $this->authHash,
