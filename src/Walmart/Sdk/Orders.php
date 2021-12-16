@@ -33,15 +33,21 @@ class Orders extends Base
 
     public function getOrders(
         int $limit = self::DEFAULT_PER_PAGE,
-        \DateTime $startDate = null,
-        \DateTime $endDate = null
+        \DateTimeInterface $startDate = null,
+        \DateTimeInterface $endDate = null,
+        string $nextCursor = null
     ): array {
-        $path = "orders?limit=$limit";
+        $path = "orders";
 
+        if ($nextCursor) {
+            $path .= $nextCursor;
+            return $this->request($path);
+        }
+
+        $path .= '?limit=' . $limit . '&nextCursor=*';
         if ($startDate) {
             $path .= "&createdStartDate=" . $startDate->format('Y-m-d');
         }
-
         if ($endDate) {
             $path .= "&createdEndDate=" . $endDate->format('Y-m-d');
         }
